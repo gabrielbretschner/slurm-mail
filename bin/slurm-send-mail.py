@@ -97,33 +97,6 @@ def runCommand(cmd):
 	stdout, stderr = process.communicate()
 	return (process.returncode, stdout, stderr)
 
-def tail( f, lines=20 ):
-    total_lines_wanted = lines
-
-    BLOCK_SIZE = 1024
-    f.seek(0, 2)
-    block_end_byte = f.tell()
-    lines_to_go = total_lines_wanted
-    block_number = -1
-    blocks = [] # blocks of size BLOCK_SIZE, in reverse order starting
-                # from the end of the file
-    while lines_to_go > 0 and block_end_byte > 0:
-        if (block_end_byte - BLOCK_SIZE > 0):
-            # read the last block we haven't yet read
-            f.seek(block_number*BLOCK_SIZE, 2)
-            blocks.append(f.read(BLOCK_SIZE))
-        else:
-            # file too small, start from begining
-            f.seek(0,0)
-            # only read what was not read
-            blocks.append(f.read(block_end_byte))
-        lines_found = blocks[-1].count('\n')
-        lines_to_go -= lines_found
-        block_end_byte -= BLOCK_SIZE
-        block_number -= 1
-    all_read_text = ''.join(reversed(blocks))
-    return '\n'.join(all_read_text.splitlines()[-total_lines_wanted:])
-
 if __name__ == "__main__":
 
 	parser = argparse.ArgumentParser(description='Send pending Slurm e-mails to users', add_help=True)
@@ -321,7 +294,7 @@ if __name__ == "__main__":
 								endTxt = 'ended'
 
 							num_lines = 20
-							log_content = tail(open(stdoutFile, "r"), lines=num_lines)
+							_, log_content, _ = runCommand("tail -n {} {}".format(num_lines, stdoutFile))
 
 							body = tpl.substitute(
 								CSS=css,
@@ -332,7 +305,7 @@ if __name__ == "__main__":
 								CLUSTER=cluster,
 								EMAIL_FROM=emailFromName,
 								NUM_LOG=num_lines,
-								LOG=log_content
+								LOG=log_content.decode("utf-8")
 							)
 
 						# create HTML e-mail
