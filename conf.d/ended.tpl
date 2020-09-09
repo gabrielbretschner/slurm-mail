@@ -14,6 +14,10 @@
 
 $JOB_TABLE
 
+<p>Last $NUM_LOG lines of your log:</p>
+
+<code>$LOG</code>
+
 <p>Regards,</p>
 
 <p>$EMAIL_FROM</p>
