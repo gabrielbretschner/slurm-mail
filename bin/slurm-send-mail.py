@@ -87,13 +87,13 @@ def getFileContents(path):
 		contents = f.read()
 	return contents
 
-def runCommand(cmd):
+def runCommand(cmd, shell=False):
 	'''
 	Execute the given command and return a tuple that contains the
 	return code, std out and std err output.
 	'''
 	logging.debug('running %s' % cmd)
-	process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+	process = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=shell)
 	stdout, stderr = process.communicate()
 	return (process.returncode, stdout, stderr)
 
@@ -294,7 +294,7 @@ if __name__ == "__main__":
 								endTxt = 'ended'
 
 							num_lines = 20
-							_, log_content, _ = runCommand("tail -n {} {}".format(num_lines, stdoutFile))
+							_, log_content, _ = runCommand("tail -n {} {}".format(num_lines, stdoutFile), shell=True)
 
 							body = tpl.substitute(
 								CSS=css,
